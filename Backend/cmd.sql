@@ -22,29 +22,29 @@ USE `db_classroom`;
 -- Dumping structure for table db_classroom.akun
 CREATE TABLE IF NOT EXISTS `akun` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `id_user` int NOT NULL,
+  `id_siswa` int NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(225) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `id_user` (`id_user`),
-  CONSTRAINT `akun_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `id_siswa` (`id_siswa`),
+  CONSTRAINT `akun_ibfk_1` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table db_classroom.akun: ~1 rows (approximately)
-INSERT INTO `akun` (`id`, `id_user`, `email`, `password`) VALUES
+INSERT INTO `akun` (`id`, `id_siswa`, `email`, `password`) VALUES
 	(1, 1, 'simboloneres@gmail.com', 'Lemon098Cool!'),
 	(3, 2, 'grouplemon0@gmail.com', 'LemonKece');
 
--- Dumping structure for table db_classroom.users
-CREATE TABLE IF NOT EXISTS `users` (
+-- Dumping structure for table db_classroom.siswa
+CREATE TABLE IF NOT EXISTS `siswa` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama` varchar(100) NOT NULL,
   `kelas` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table db_classroom.users: ~1 rows (approximately)
-INSERT INTO `users` (`id`, `nama`, `kelas`) VALUES
+-- Dumping data for table db_classroom.siswa: ~1 rows (approximately)
+INSERT INTO `siswa` (`id`, `nama`, `kelas`) VALUES
 	(1, 'ERES FRAN SETIA SIMBOLON', 'XI-RPL-2'),
 	(2, 'Reymond Leonard', 'XI-RPL-2');
 
