@@ -10,10 +10,16 @@ router.get("/", async (req, res) => {
       .status(401)
       .json({ message: "Harap masukkan email dan password" });
   const auth = await Lemon.authLogin(email, password);
-  if (!auth)
+  if (!auth.success)
     return res
       .status(401)
-      .json({ message: "Harap masukkan email dan password" });
+      .json({ message: auth.message });
+
+      const id_user = auth.id
+      res.status(200).json({
+        success: true,
+        id: id_user
+      })
 });
 
 module.exports = router;

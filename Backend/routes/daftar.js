@@ -3,8 +3,8 @@ const router = express.Router();
 const db = require("../db/connection");
 const { Lemon } = require("../utils/allFunction");
 
-router.get("/", async (req, res) => {
-  const { nama, kelas, email, password } = req.query;
+router.post("/", async (req, res) => {
+  const { nama, kelas, email, password } = req.body;
   if (!nama || !kelas || !email || !password)
     return res
       .status(401)
@@ -36,7 +36,7 @@ router.get("/", async (req, res) => {
       "INSERT INTO akun (id_siswa, email, password) VALUES (?, ?, ?)",
       [id_user, email, password],
     );
-    res.status(200).json({ message: "Berhasil menambahkan akun" });
+    res.status(200).json({ success: true, message: "Berhasil menambahkan akun" });
   } catch (error) {
     res.status(500).json(error.message);
   }
