@@ -9,6 +9,10 @@ router.get("/", async (req, res) => {
     return res
       .status(401)
       .json({ message: "Harap masukkan email dan password" });
+  if (!email.includes("@"))
+    return res
+      .status(401)
+      .json({ message: "Harap masukkan format email yang tepat" });
   const auth = await Lemon.authLogin(email, password);
   if (!auth.success)
     return res

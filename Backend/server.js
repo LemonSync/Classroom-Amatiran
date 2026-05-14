@@ -6,6 +6,7 @@ const PORT = 3000
 // Routernya
 const login = require('./routes/login')
 const daftar = require('./routes/daftar')
+const removeLogin = require('./routes/removeLogin')
 
 app.use(express.json())
 
@@ -15,6 +16,7 @@ app.get("/", (req, res) => {
 
 app.use("/login", login)
 app.use("/daftar", daftar)
+app.use("/remove-login", removeLogin)
 
 app.listen(PORT, () => {
     console.log(`Sudah berjalan di http://localhost:${PORT}`)
