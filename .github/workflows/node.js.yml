@@ -33,7 +33,7 @@ jobs:
     - name: Install and Build Frontend
       run: |
         cd Frontend
-        npm install
+        npm install --force
         npm run build --if-present
 
     # Catatan: npm test akan dijalankan di root.
