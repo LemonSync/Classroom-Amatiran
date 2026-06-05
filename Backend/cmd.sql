@@ -22,7 +22,6 @@ USE `db_classroom`;
 -- Dumping structure for table db_classroom.akun
 CREATE TABLE IF NOT EXISTS `akun` (
   `id` int NOT NULL AUTO_INCREMENT,
-<<<<<<< HEAD
   `id_siswa` int DEFAULT NULL,
   `id_guru` int DEFAULT NULL,
   `email` varchar(255) NOT NULL,
@@ -218,21 +217,6 @@ INSERT INTO `quotes_harian` (`id`, `isi_quote`, `penulis`, `created_at`) VALUES
 	(98, 'Dunia ini penuh dengan orang-orang baik. Jika kamu tidak dapat menemukannya, jadilah salah satunya.', 'Nishan Panwar', '2026-06-01 13:32:47'),
 	(99, 'Kebahagiaan adalah ketika apa yang Anda pikirkan, apa yang Anda katakan, dan apa yang Anda lakukan berada dalam keharmonisan.', 'Mahatma Gandhi', '2026-06-01 13:32:47'),
 	(100, 'Hari esok adalah halaman kosong pertama dari buku setebal 365 halaman. Tulislah halaman yang bagus.', 'Brad Paisley', '2026-06-01 13:32:47');
-=======
-  `id_siswa` int NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(225) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `id_siswa` (`id_siswa`),
-  CONSTRAINT `akun_ibfk_1` FOREIGN KEY (`id_siswa`) REFERENCES `siswa` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Dumping data for table db_classroom.akun: ~2 rows (approximately)
-INSERT INTO `akun` (`id`, `id_siswa`, `email`, `password`) VALUES
-	(1, 1, 'simboloneres@gmail.com', 'Lemon098Cool!'),
-	(3, 2, 'grouplemon0@gmail.com', 'LemonKece'),
-	(4, 3, 'simboloneres@gmail.com', '123');
->>>>>>> c1b9cc013a524f42c8e2d49c19d4f74e1b121de6
 
 -- Dumping structure for table db_classroom.siswa
 CREATE TABLE IF NOT EXISTS `siswa` (
@@ -241,7 +225,6 @@ CREATE TABLE IF NOT EXISTS `siswa` (
   `kelas` varchar(100) NOT NULL,
   `login` tinyint DEFAULT '0',
   PRIMARY KEY (`id`)
-<<<<<<< HEAD
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table db_classroom.siswa: ~35 rows (approximately)
@@ -357,15 +340,6 @@ CREATE TABLE IF NOT EXISTS `tugas` (
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table db_classroom.tugas: ~0 rows (approximately)
-=======
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Dumping data for table db_classroom.siswa: ~3 rows (approximately)
-INSERT INTO `siswa` (`id`, `nama`, `kelas`, `login`) VALUES
-	(1, 'ERES FRAN SETIA SIMBOLON', 'XI-RPL-2', 1),
-	(2, 'REYMOND LEONARD', 'XI-RPL-2', 0),
-	(3, 'JOLI IRAWAN ZAI', 'XI-RPL-2', 0);
->>>>>>> c1b9cc013a524f42c8e2d49c19d4f74e1b121de6
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
