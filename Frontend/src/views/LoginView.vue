@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import ModalCostume from "../components/ModalCostume.vue";
 
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = "https://sembilan-kelas-backend.vercel.app";
 const router = useRouter();
 const email = ref("");
 const password = ref("");

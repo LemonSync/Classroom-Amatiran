@@ -31,9 +31,4 @@ app.use("/pengumpulan", pengumpulan);
 app.use("/tantangan", tantangan);
 app.use("/quotes", quotes);
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`==================================================`);
-  console.log(` SERVER BACKEND CLASSROOM READY TO ROCK!           `);
-  console.log(` Berjalan di URL: http://localhost:${PORT}        `);
-  console.log(`==================================================`);
-});
+module.exports = app;

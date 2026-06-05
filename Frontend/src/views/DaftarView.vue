@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = "https://sembilan-kelas-backend.vercel.app";
 const router = useRouter();
 const nama = ref("");
 const kelas = ref("");

@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import ModalCostume from "../components/ModalCostume.vue";
 
-const BACKEND_URL = "http://localhost:3000";
+const BACKEND_URL = "https://sembilan-kelas-backend.vercel.app";
 const userId = ref(localStorage.getItem("id_user") || "Tidak Terdeteksi");
 const userRole = ref(localStorage.getItem("role_user") || "siswa");
 const userName = ref(localStorage.getItem("nama_user") || "Pengguna");
