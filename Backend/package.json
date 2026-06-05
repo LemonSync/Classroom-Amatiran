@@ -10,14 +10,21 @@
   "author": "LemonSync/Eres_Simbolon",
   "license": "ISC",
   "dependencies": {
+<<<<<<< HEAD
     "@supabase/supabase-js": "^2.106.2",
+=======
+>>>>>>> c1b9cc013a524f42c8e2d49c19d4f74e1b121de6
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
+<<<<<<< HEAD
     "multer": "^2.1.1",
     "mysql2": "^3.22.4",
+=======
+    "mysql2": "^3.22.3",
+>>>>>>> c1b9cc013a524f42c8e2d49c19d4f74e1b121de6
     "nodemon": "^3.1.14",
     "path": "^0.12.7"
   }

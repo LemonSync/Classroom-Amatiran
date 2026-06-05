@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -35,3 +36,28 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(` Berjalan di URL: http://localhost:${PORT}        `);
   console.log(`==================================================`);
 });
+=======
+const express = require('express')
+const app = express()
+const db = require('./db/connection')
+const PORT = 3000
+
+// Routernya
+const login = require('./routes/login')
+const daftar = require('./routes/daftar')
+const removeLogin = require('./routes/removeLogin')
+
+app.use(express.json())
+
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "Backend berjalan" })
+})
+
+app.use("/login", login)
+app.use("/daftar", daftar)
+app.use("/remove-login", removeLogin)
+
+app.listen(PORT, () => {
+    console.log(`Sudah berjalan di http://localhost:${PORT}`)
+})
+>>>>>>> c1b9cc013a524f42c8e2d49c19d4f74e1b121de6
