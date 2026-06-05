@@ -26,20 +26,21 @@ jobs:
     - name: Install and Build Backend
       run: |
         cd Backend
-        npm ci
+        npm install --include=optional
         npm run build --if-present
 
     # Proses untuk Frontend
     - name: Install and Build Frontend
       run: |
         cd Frontend
-        npm install --force
+        npm install --include=optional
         npm run build --if-present
 
-    # Catatan: npm test akan dijalankan di root.
-    # Jika kamu ingin test Backend dan Frontend dipisah,
-    # ganti baris di bawah dengan perintah cd ke masing-masing folder.
+    # Run Tests dengan navigasi yang aman
     - name: Run Tests
       run: |
-        cd Backend && npm test || echo "Backend tests skipped"
-        cd ../Frontend && npm test || echo "Frontend tests skipped"
+        if [ -d "Backend" ]; then echo "Running Backend tests..."; cd Backend && npm test; fi
+
+        cd ..
+
+        if [ -d "Frontend" ]; then echo "Running Frontend tests..."; cd Frontend && npm test; fi
