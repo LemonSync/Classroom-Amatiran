@@ -2,9 +2,13 @@ const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
 const { Lemon } = require("../utils/allFunction");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const KODE_RAHASIA_GURU = process.env.KODE_RAHASIA_GURU;
 
 router.post("/daftar", async (req, res) => {
-  const { nama, kelas, email, password, role } = req.body;
+  const { nama, kelas, email, password, role, passGuru } = req.body;
+
   if (!nama || !email || !password || !role) {
     return res
       .status(400)
@@ -18,6 +22,12 @@ router.post("/daftar", async (req, res) => {
 
   try {
     if (role === "guru") {
+      if (!passGuru || passGuru !== KODE_RAHASIA_GURU) {
+        return res
+          .status(401)
+          .json({ message: "Password verifikasi guru salah atau tidak sah!" });
+      }
+
       const guruAvailable = await Lemon.cekGuru(nama);
       if (!guruAvailable.success) {
         return res
@@ -42,6 +52,7 @@ router.post("/daftar", async (req, res) => {
         "INSERT INTO akun (id_guru, email, password, role) VALUES (?, ?, ?, 'guru')",
         [id_guru, email, password],
       );
+
     } else if (role === "siswa") {
       if (!kelas) {
         return res
@@ -85,8 +96,8 @@ router.post("/daftar", async (req, res) => {
   }
 });
 
-router.get("/login", async (req, res) => {
-  const { email, password } = req.query;
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return res
@@ -104,14 +115,33 @@ router.get("/login", async (req, res) => {
     return res.status(401).json({ message: auth.message });
   }
 
-  res.status(200).json({
-    success: true,
-    id: auth.id,
-    role: auth.role,
-    nama: auth.nama,
-    kelas: auth.kelas,
-    password: password,
-  });
+  try {
+    const token = jwt.sign(
+      {
+        id: auth.id,
+        role: auth.role,
+        nama: auth.nama,
+        kelas: auth.kelas,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Login berhasil!",
+      token: token,
+      user: {
+        id: auth.id,
+        role: auth.role,
+        nama: auth.nama,
+        kelas: auth.kelas,
+        password: password
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Gagal memproses token: " + error.message });
+  }
 });
 
 router.get("/logout", async (req, res) => {

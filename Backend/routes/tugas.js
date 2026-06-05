@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
+const { verifyToken, checkRole } = require("../middleware/authMiddleware");
 
-router.post("/buat", async (req, res) => {
+router.post("/buat", verifyToken, checkRole(["guru"]), async (req, res) => {
   const { id_mapel, judul, deskripsi, tenggat_waktu } = req.body;
 
   if (!id_mapel || !judul || !tenggat_waktu) {
@@ -41,7 +42,7 @@ router.post("/buat", async (req, res) => {
   }
 });
 
-router.get("/detail/:id", async (req, res) => {
+router.get("/detail/:id", verifyToken, checkRole(["guru", "siswa"]), async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -78,14 +79,15 @@ router.get("/detail/:id", async (req, res) => {
   }
 });
 
-router.get("/kelas/:nama_kelas", async (req, res) => {
+router.get("/kelas/:nama_kelas", verifyToken, checkRole(["guru", "siswa"]), async (req, res) => {
   const { nama_kelas } = req.params;
-  const { id_siswa } = req.query;
+
+  const id_siswa = req.query.id_siswa || (req.user.role === "siswa" ? req.user.id : null);
 
   if (!id_siswa) {
     return res.status(400).json({
       success: false,
-      message: "Parameter id_siswa wajib dikirim untuk memeriksa status tugas",
+      message: "Parameter id_siswa wajib ditentukan untuk memeriksa status tugas",
     });
   }
 
@@ -130,24 +132,24 @@ router.get("/kelas/:nama_kelas", async (req, res) => {
   }
 });
 
-router.get("/mapel/:id_mapel", async (req, res) => {
+router.get("/mapel/:id_mapel", verifyToken, checkRole(["guru", "siswa"]), async (req, res) => {
   const { id_mapel } = req.params;
 
   try {
     const [tugasMapel] = await db.execute(
       `SELECT
-     t.id AS id_tugas,
-     t.judul,
-     t.deskripsi,
-     t.tenggat_waktu,
-     m.nama_mapel,
-     m.kelas,
-     g.nama AS nama_guru
-   FROM tugas t
-   JOIN mapel m ON t.id_mapel = m.id
-   JOIN guru g ON m.id_guru = g.id
-   WHERE t.id_mapel = ?
-   ORDER BY t.id DESC`,
+         t.id AS id_tugas,
+         t.judul,
+         t.deskripsi,
+         t.tenggat_waktu,
+         m.nama_mapel,
+         m.kelas,
+         g.nama AS nama_guru
+       FROM tugas t
+       JOIN mapel m ON t.id_mapel = m.id
+       JOIN guru g ON m.id_guru = g.id
+       WHERE t.id_mapel = ?
+       ORDER BY t.id DESC`,
       [id_mapel],
     );
 
@@ -163,7 +165,7 @@ router.get("/mapel/:id_mapel", async (req, res) => {
   }
 });
 
-router.delete("/hapus/:id", async (req, res) => {
+router.delete("/hapus/:id", verifyToken, checkRole(["guru"]), async (req, res) => {
   const { id } = req.params;
 
   try {

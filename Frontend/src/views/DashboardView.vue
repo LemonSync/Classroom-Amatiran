@@ -1,6 +1,209 @@
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import ModalCostume from "../components/ModalCostume.vue";
+
+const BACKEND_URL = "http://localhost:3000";
+const router = useRouter();
+const userId = localStorage.getItem("id_user");
+const userKelas = localStorage.getItem("kelas_user");
+const userRole = localStorage.getItem("role_user");
+const tokenUser = localStorage.getItem("token_user");
+
+const daftarTugasSiswa = ref([]);
+const daftarMapelGuru = ref([]);
+const namaMapelBaru = ref("");
+const kelasTargetBaru = ref("");
+const isLoading = ref(false);
+const isModalOpen = ref(false);
+const modalConfig = ref({
+    tipe: "info",
+    judul: "Pemberitahuan",
+    pesan: "",
+    teksKonfirmasi: "Oke Siap",
+    showCancel: false,
+});
+
+const modalAction = ref(null);
+
+const pemicuModal = (
+    pesan,
+    tipe = "info",
+    judul = "Pemberitahuan",
+    teksKonfirmasi = "Oke Siap",
+    showCancel = false,
+    action = null,
+) => {
+    modalConfig.value = {
+        tipe,
+        judul,
+        pesan,
+        teksKonfirmasi,
+        showCancel,
+    };
+    modalAction.value = action;
+    isModalOpen.value = true;
+};
+
+const handleModalConfirm = () => {
+    isModalOpen.value = false;
+    if (modalAction.value) {
+        modalAction.value();
+        modalAction.value = null;
+    }
+};
+
+const fetchDashboardData = async () => {
+    isLoading.value = true;
+
+    try {
+        if (userRole === "siswa") {
+            const response = await fetch(
+                `${BACKEND_URL}/tugas/kelas/${userKelas}?id_siswa=${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${tokenUser}`
+                    }
+                }
+            );
+            const result = await response.json();
+            if (result.success) {
+                daftarTugasSiswa.value = result.data;
+            }
+        } else if (userRole === "guru") {
+            const response = await fetch(
+                `${BACKEND_URL}/mapel/guru/${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${tokenUser}`
+                    }
+                }
+            );
+            const result = await response.json();
+            if (result.success) {
+                daftarMapelGuru.value = result.data;
+            }
+        }
+    } catch (error) {
+        pemicuModal(
+            "Gagal memuat data dari server: " + error.message,
+            "error",
+            "Koneksi Bermasalah",
+        );
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const handleTambahMapel = async () => {
+    if (!namaMapelBaru.value || !kelasTargetBaru.value) {
+        pemicuModal(
+            "Nama Mapel dan Kelas tidak boleh kosong!",
+            "peringatan",
+            "Input Belum Lengkap",
+        );
+        return;
+    }
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/mapel/buat`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${tokenUser}`
+            },
+            body: JSON.stringify({
+                nama_mapel: namaMapelBaru.value,
+                id_guru: userId,
+                kelas: kelasTargetBaru.value,
+            }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            pemicuModal(
+                "Mata pelajaran baru berhasil ditambahkan!",
+                "sukses",
+                "Berhasil!",
+            );
+
+            namaMapelBaru.value = "";
+            kelasTargetBaru.value = "";
+
+            fetchDashboardData();
+        } else {
+            pemicuModal(
+                result.message || "Gagal menambahkan mata pelajaran",
+                "error",
+                "Gagal Menambahkan",
+            );
+        }
+    } catch (error) {
+        pemicuModal(
+            "Terjadi kesalahan sistem: " + error.message,
+            "error",
+            "Sistem Error",
+        );
+    }
+};
+
+const konfirmasiHapusMapel = (idMapel, namaMapel) => {
+    pemicuModal(
+        `Apakah Anda yakin ingin menghapus mata pelajaran "${namaMapel}"? Semua data tugas di dalamnya akan ikut terhapus dari sistem.`,
+        "peringatan",
+        "Hapus Mapel?",
+        "Ya, Hapus",
+        true,
+        () => aksiHapusMapel(idMapel),
+    );
+};
+
+const aksiHapusMapel = async (idMapel) => {
+    isLoading.value = true;
+    try {
+        const response = await fetch(`${BACKEND_URL}/mapel/hapus/${idMapel}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${tokenUser}`
+            }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            pemicuModal(
+                "Mata pelajaran berhasil dihapus.",
+                "sukses",
+                "Berhasil",
+            );
+            fetchDashboardData();
+        } else {
+            pemicuModal(
+                result.message || "Gagal menghapus mata pelajaran",
+                "error",
+                "Gagal",
+            );
+        }
+    } catch (error) {
+        pemicuModal(
+            "Terjadi kesalahan sistem: " + error.message,
+            "error",
+            "Sistem Error",
+        );
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+onMounted(() => {
+    fetchDashboardData();
+});
+</script>
+
 <template>
     <div class="dashboard-container">
-        <button @click="router.back()" class="btn-back">&larr; Kembali</button>
+        <button @click="router.push({name: 'home-page'})" class="btn-back">&larr; Kembali ke HomePage</button>
         <h2>Papan Utama (Dashboard)</h2>
         <p>
             Selamat datang di sistem pembelajaran, anda masuk sebagai
@@ -198,187 +401,6 @@
         />
     </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import ModalCostume from "../components/ModalCostume.vue";
-
-const BACKEND_URL = "http://localhost:3000";
-const router = useRouter();
-const userId = localStorage.getItem("id_user");
-const userKelas = localStorage.getItem("kelas_user");
-const userRole = localStorage.getItem("role_user");
-const daftarTugasSiswa = ref([]);
-const daftarMapelGuru = ref([]);
-const namaMapelBaru = ref("");
-const kelasTargetBaru = ref("");
-const isLoading = ref(false);
-const isModalOpen = ref(false);
-const modalConfig = ref({
-    tipe: "info",
-    judul: "Pemberitahuan",
-    pesan: "",
-    teksKonfirmasi: "Oke Siap",
-    showCancel: false,
-});
-
-const modalAction = ref(null);
-
-const pemicuModal = (
-    pesan,
-    tipe = "info",
-    judul = "Pemberitahuan",
-    teksKonfirmasi = "Oke Siap",
-    showCancel = false,
-    action = null,
-) => {
-    modalConfig.value = {
-        tipe,
-        judul,
-        pesan,
-        teksKonfirmasi,
-        showCancel,
-    };
-    modalAction.value = action;
-    isModalOpen.value = true;
-};
-
-const handleModalConfirm = () => {
-    isModalOpen.value = false;
-    if (modalAction.value) {
-        modalAction.value();
-        modalAction.value = null;
-    }
-};
-
-const fetchDashboardData = async () => {
-    isLoading.value = true;
-
-    try {
-        if (userRole === "siswa") {
-            const response = await fetch(
-                `${BACKEND_URL}/tugas/kelas/${userKelas}?id_siswa=${userId}`,
-            );
-            const result = await response.json();
-            if (result.success) {
-                daftarTugasSiswa.value = result.data;
-            }
-        } else if (userRole === "guru") {
-            const response = await fetch(`${BACKEND_URL}/mapel/guru/${userId}`);
-            const result = await response.json();
-            if (result.success) {
-                daftarMapelGuru.value = result.data;
-            }
-        }
-    } catch (error) {
-        pemicuModal(
-            "Gagal memuat data dari server: " + error.message,
-            "error",
-            "Koneksi Bermasalah",
-        );
-    } finally {
-        isLoading.value = false;
-    }
-};
-
-const handleTambahMapel = async () => {
-    if (!namaMapelBaru.value || !kelasTargetBaru.value) {
-        pemicuModal(
-            "Nama Mapel dan Kelas tidak boleh kosong!",
-            "peringatan",
-            "Input Belum Lengkap",
-        );
-        return;
-    }
-
-    try {
-        const response = await fetch(`${BACKEND_URL}/mapel/buat`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                nama_mapel: namaMapelBaru.value,
-                id_guru: userId,
-                kelas: kelasTargetBaru.value,
-            }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            pemicuModal(
-                "Mata pelajaran baru berhasil ditambahkan!",
-                "sukses",
-                "Berhasil!",
-            );
-
-            namaMapelBaru.value = "";
-            kelasTargetBaru.value = "";
-
-            fetchDashboardData();
-        } else {
-            pemicuModal(
-                result.message || "Gagal menambahkan mata pelajaran",
-                "error",
-                "Gagal Menambahkan",
-            );
-        }
-    } catch (error) {
-        pemicuModal(
-            "Terjadi kesalahan sistem: " + error.message,
-            "error",
-            "Sistem Error",
-        );
-    }
-};
-
-const konfirmasiHapusMapel = (idMapel, namaMapel) => {
-    pemicuModal(
-        `Apakah Anda yakin ingin menghapus mata pelajaran "${namaMapel}"? Semua data tugas di dalamnya akan ikut terhapus dari sistem.`,
-        "peringatan",
-        "Hapus Mapel?",
-        "Ya, Hapus",
-        true,
-        () => aksiHapusMapel(idMapel),
-    );
-};
-
-const aksiHapusMapel = async (idMapel) => {
-    isLoading.value = true;
-    try {
-        const response = await fetch(`${BACKEND_URL}/mapel/hapus/${idMapel}`, {
-            method: "DELETE",
-        });
-
-        const result = await response.json();
-        if (result.success) {
-            pemicuModal(
-                "Mata pelajaran berhasil dihapus.",
-                "sukses",
-                "Berhasil",
-            );
-            fetchDashboardData();
-        } else {
-            pemicuModal(
-                result.message || "Gagal menghapus mata pelajaran",
-                "error",
-                "Gagal",
-            );
-        }
-    } catch (error) {
-        pemicuModal(
-            "Terjadi kesalahan sistem: " + error.message,
-            "error",
-            "Sistem Error",
-        );
-    } finally {
-        isLoading.value = false;
-    }
-};
-
-onMounted(() => {
-    fetchDashboardData();
-});
-</script>
 
 <style scoped>
 .dashboard-container {

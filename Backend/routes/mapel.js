@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
+const { verifyToken, checkRole } = require("../middleware/authMiddleware");
 
-router.post("/buat", async (req, res) => {
+router.post("/buat", verifyToken, checkRole(["guru"]), async (req, res) => {
   const { nama_mapel, id_guru, kelas } = req.body;
 
   if (!nama_mapel || !id_guru || !kelas) {
@@ -41,7 +42,7 @@ router.post("/buat", async (req, res) => {
   }
 });
 
-router.get("/guru/:id_guru", async (req, res) => {
+router.get("/guru/:id_guru", verifyToken, checkRole(["guru"]), async (req, res) => {
   const { id_guru } = req.params;
 
   try {
@@ -62,7 +63,7 @@ router.get("/guru/:id_guru", async (req, res) => {
   }
 });
 
-router.get("/kelas/:nama_kelas", async (req, res) => {
+router.get("/kelas/:nama_kelas", verifyToken, async (req, res) => {
   const { nama_kelas } = req.params;
 
   try {
@@ -87,7 +88,7 @@ router.get("/kelas/:nama_kelas", async (req, res) => {
   }
 });
 
-router.delete("/hapus/:id", async (req, res) => {
+router.delete("/hapus/:id", verifyToken, checkRole(["guru"]), async (req, res) => {
   const { id } = req.params;
 
   try {

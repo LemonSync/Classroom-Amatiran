@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../db/connection");
+const { verifyToken, checkRole } = require("../middleware/authMiddleware");
 
-router.get("/hari-ini/:id_siswa", async (req, res) => {
+router.get("/hari-ini/:id_siswa", verifyToken, checkRole(["siswa"]), async (req, res) => {
   const { id_siswa } = req.params;
 
   if (!id_siswa || id_siswa === "Tidak Terdeteksi") {
@@ -63,7 +64,7 @@ router.get("/hari-ini/:id_siswa", async (req, res) => {
   }
 });
 
-router.post("/submit", async (req, res) => {
+router.post("/submit", verifyToken, checkRole(["siswa"]), async (req, res) => {
   const { id_siswa, id_tantangan, jawaban_siswa } = req.body;
 
   if (!id_siswa || !id_tantangan || !jawaban_siswa) {
@@ -143,7 +144,7 @@ router.post("/submit", async (req, res) => {
   }
 });
 
-router.get("/leaderboard", async (req, res) => {
+router.get("/leaderboard", verifyToken, checkRole(["siswa", "guru"]), async (req, res) => {
   try {
     const query = `
       SELECT

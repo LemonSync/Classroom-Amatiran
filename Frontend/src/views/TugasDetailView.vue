@@ -9,6 +9,8 @@ const router = useRouter();
 const idTugas = route.params.id;
 const userId = localStorage.getItem("id_user");
 const userRole = localStorage.getItem("role_user");
+const tokenUser = localStorage.getItem("token_user");
+
 const dataTugas = ref(null);
 const listPengumpulanGuru = ref([]);
 const dataSubmitSiswa = ref(null);
@@ -73,6 +75,12 @@ const fetchDetailTugas = async () => {
     try {
         const responseTugas = await fetch(
             `${BACKEND_URL}/tugas/detail/${idTugas}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokenUser}`
+                }
+            }
         );
         const resultTugas = await responseTugas.json();
 
@@ -90,6 +98,12 @@ const fetchDetailTugas = async () => {
         if (userRole === "guru") {
             const responseGuru = await fetch(
                 `${BACKEND_URL}/pengumpulan/tugas/${idTugas}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${tokenUser}`
+                    }
+                }
             );
             const resultGuru = await responseGuru.json();
             if (resultGuru.success) {
@@ -98,6 +112,12 @@ const fetchDetailTugas = async () => {
         } else if (userRole === "siswa") {
             const responseSiswa = await fetch(
                 `${BACKEND_URL}/pengumpulan/tugas/${idTugas}/siswa/${userId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${tokenUser}`
+                    }
+                }
             );
             const resultSiswa = await responseSiswa.json();
             if (resultSiswa.success && resultSiswa.data) {
@@ -126,6 +146,9 @@ const eksekusiKumpulTugas = async () => {
 
         const response = await fetch(`${BACKEND_URL}/pengumpulan/submit`, {
             method: "POST",
+            headers: {
+                "Authorization": `Bearer ${tokenUser}`
+            },
             body: formData,
         });
 

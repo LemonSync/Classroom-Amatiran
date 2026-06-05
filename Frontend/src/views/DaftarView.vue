@@ -8,20 +8,26 @@ const nama = ref("");
 const kelas = ref("");
 const email = ref("");
 const password = ref("");
+const passGuru = ref("");
 const role = ref("siswa");
 const errorMessage = ref("");
 const successMessage = ref("");
 const isLoading = ref(false);
 
 const handleDaftar = async () => {
+
     if (!nama.value || !email.value || !password.value || !role.value) {
-        errorMessage.value =
-            "Semua kolom wajib diisi (kecuali kelas untuk guru)!";
+        errorMessage.value = "Semua kolom utama wajib diisi!";
         return;
     }
 
     if (role.value === "siswa" && !kelas.value) {
         errorMessage.value = "Siswa wajib mengisi kolom kelas!";
+        return;
+    }
+
+    if (role.value === "guru" && !passGuru.value) {
+        errorMessage.value = "Password verifikasi guru wajib ditentukan!";
         return;
     }
 
@@ -37,7 +43,8 @@ const handleDaftar = async () => {
             },
             body: JSON.stringify({
                 nama: nama.value.toUpperCase(),
-                kelas: role.value === "siswa" ? kelas.value : undefined,
+                kelas: role.value === "siswa" ? kelas.value.toUpperCase() : undefined,
+                passGuru: role.value === "guru" ? passGuru.value.toUpperCase() : undefined,
                 email: email.value,
                 password: password.value,
                 role: role.value,
@@ -54,11 +61,11 @@ const handleDaftar = async () => {
 
         successMessage.value =
             "Pendaftaran berhasil! Mengalihkan ke halaman login...";
-
         nama.value = "";
         kelas.value = "";
         email.value = "";
         password.value = "";
+        passGuru.value = "";
 
         setTimeout(() => {
             router.push({ name: "login" });
@@ -153,6 +160,19 @@ const handleDaftar = async () => {
                                     id="password"
                                     v-model="password"
                                     placeholder="Buat password unik"
+                                    :disabled="isLoading"
+                                />
+                            </td>
+                        </tr>
+                        <tr v-if="role === 'guru'">
+                            <td><label for="passGuru">Password Guru</label></td>
+                            <td>:</td>
+                            <td>
+                                <input
+                                    type="password"
+                                    id="passGuru"
+                                    v-model="passGuru"
+                                    placeholder="Password khusus validasi guru"
                                     :disabled="isLoading"
                                 />
                             </td>

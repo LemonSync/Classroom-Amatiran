@@ -8,6 +8,8 @@ const route = useRoute();
 const router = useRouter();
 const idMapel = route.params.id;
 const userRole = localStorage.getItem("role_user");
+const tokenUser = localStorage.getItem("token_user");
+
 const detailMapel = ref(null);
 const daftarTugas = ref([]);
 const judulTugas = ref("");
@@ -57,6 +59,12 @@ const fetchMapelData = async () => {
     try {
         const responseTugas = await fetch(
             `${BACKEND_URL}/tugas/mapel/${idMapel}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokenUser}`
+                }
+            }
         );
         const resultTugas = await responseTugas.json();
 
@@ -107,7 +115,10 @@ const handleTambahTugas = async () => {
     try {
         const response = await fetch(`${BACKEND_URL}/tugas/buat`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${tokenUser}`
+            },
             body: JSON.stringify({
                 id_mapel: idMapel,
                 judul: judulTugas.value,
@@ -159,8 +170,11 @@ const konfirmasiHapusTugas = (idTugas, judul) => {
 const aksiHapusTugas = async (idTugas) => {
     isLoading.value = true;
     try {
-        const response = await fetch(`/tugas/hapus/${idTugas}`, {
+        const response = await fetch(`${BACKEND_URL}/tugas/hapus/${idTugas}`, {
             method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${tokenUser}`
+            }
         });
 
         const result = await response.json();

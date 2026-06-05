@@ -67,22 +67,34 @@ onMounted(() => {
 const eksekusiLogout = async () => {
     try {
         const password = localStorage.getItem("pass_user") || "";
+        const tokenUser = localStorage.getItem("token_user") || "";
+
         await fetch(
             `${BACKEND_URL}/auth/logout?method=normal&id=${userId.value}&password=${encodeURIComponent(password)}&role=${userRole.value}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokenUser}`
+                }
+            }
         );
     } catch (error) {
         console.error("Gagal sinkronisasi logout ke server:", error);
     } finally {
         localStorage.clear();
+
         userId.value = null;
         userRole.value = null;
+        userNama.value = null;
+        userKelas.value = null;
+
         router.push({ name: "login" });
     }
 };
 
 const handleLogout = () => {
     pemicuModal(
-        "Apakah kamu yakin ingin keluar dari platform SMKN 9 Classroom? Sesi kamu akan segera diakhiri.",
+        "Apakah kamu yakin ingin keluar dari platform? Sesi kamu akan segera diakhiri.",
         "peringatan",
         "Konfirmasi Logout",
         "Ya, Keluar",
@@ -98,7 +110,7 @@ const handleLogout = () => {
             <div class="brand-wrapper">
                 <div class="brand">
                     <router-link :to="{ name: 'dashboard' }" class="brand-link">
-                        <strong>SembilanKelas</strong>
+                        <strong><span>Sembilan</span><span style="color:dodgerblue">Kelas</span></strong>
                     </router-link>
                 </div>
                 <div class="user-sub-info">
@@ -163,14 +175,14 @@ const handleLogout = () => {
 .brand-link {
     color: #1a1a1a;
     text-decoration: none;
-    font-size: 18px;
-    text-transform: uppercase;
+    font-size: 25px;
     letter-spacing: 0.5px;
     display: inline-block;
 }
 
 .brand-link:hover {
     background-color: #fef08a;
+    text-decoration: underline;
 }
 
 .user-sub-info {

@@ -7,7 +7,9 @@ const userId = ref(localStorage.getItem("id_user") || "Tidak Terdeteksi");
 const userRole = ref(localStorage.getItem("role_user") || "siswa");
 const userName = ref(localStorage.getItem("nama_user") || "Pengguna");
 const userKelas = ref(localStorage.getItem("kelas_user") || "");
-const userPassword = ref(localStorage.getItem("pass_user") || "");
+const userPassword = ref(localStorage.getItem("password_user") || "");
+const tokenUser = localStorage.getItem("token_user");
+
 const isPasswordVisible = ref(false);
 const isLoadingTugas = ref(false);
 const errorMessageTugas = ref("");
@@ -58,10 +60,14 @@ const fetchQuoteHariIni = async () => {
 };
 
 const fetchRankingTantangan = async () => {
-    if (userRole.value !== "siswa") return;
     isLoadingRanking.value = true;
     try {
-        const response = await fetch(`${BACKEND_URL}/tantangan/leaderboard`);
+        const response = await fetch(`${BACKEND_URL}/tantangan/leaderboard`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${tokenUser}`
+            }
+        });
         const result = await response.json();
         if (result.success) {
             rankingData.value = result.data;
@@ -79,6 +85,12 @@ const fetchTantanganHarian = async () => {
     try {
         const response = await fetch(
             `${BACKEND_URL}/tantangan/hari-ini/${userId.value}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokenUser}`
+                }
+            }
         );
         const result = await response.json();
 
@@ -104,7 +116,10 @@ const submitJawaban = async (pilihan) => {
     try {
         const response = await fetch(`${BACKEND_URL}/tantangan/submit`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${tokenUser}`
+            },
             body: JSON.stringify({
                 id_siswa: userId.value,
                 id_tantangan: tantanganData.value.id,
@@ -149,6 +164,12 @@ const fetchTugasTerbaru = async () => {
     try {
         const response = await fetch(
             `${BACKEND_URL}/tugas/kelas/${userKelas.value}?id_siswa=${userId.value}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${tokenUser}`
+                }
+            }
         );
 
         const result = await response.json();

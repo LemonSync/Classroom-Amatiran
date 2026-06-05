@@ -3,10 +3,12 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 const db = require("./db/connection");
+require("dotenv").config();
 const PORT = 3000;
+
+process.env.JWT_SECRET = process.env.JWT_SECRET;
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 const auth = require("./routes/auth");
 const mapel = require("./routes/mapel");

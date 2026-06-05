@@ -5,6 +5,8 @@ const multer = require("multer");
 const path = require("path");
 const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
+const { verifyToken, checkRole } = require("../middleware/authMiddleware");
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
@@ -31,7 +33,7 @@ const upload = multer({
   limits: { fileSize: 20 * 1024 * 1024 },
 });
 
-router.post("/submit", upload.single("pdf_tugas"), async (req, res) => {
+router.post("/submit", verifyToken, checkRole(["siswa"]), upload.single("pdf_tugas"), async (req, res) => {
   const { id_tugas, id_siswa } = req.body;
 
   if (!req.file) {
@@ -113,7 +115,7 @@ router.post("/submit", upload.single("pdf_tugas"), async (req, res) => {
   }
 });
 
-router.get("/tugas/:id_tugas/siswa/:id_siswa", async (req, res) => {
+router.get("/tugas/:id_tugas/siswa/:id_siswa", verifyToken, checkRole(["siswa", "guru"]), async (req, res) => {
   const { id_tugas, id_siswa } = req.params;
 
   try {
@@ -135,7 +137,7 @@ router.get("/tugas/:id_tugas/siswa/:id_siswa", async (req, res) => {
   }
 });
 
-router.get("/tugas/:id_tugas", async (req, res) => {
+router.get("/tugas/:id_tugas", verifyToken, checkRole(["guru"]), async (req, res) => {
   const { id_tugas } = req.params;
 
   try {

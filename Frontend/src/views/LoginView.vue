@@ -1,3 +1,122 @@
+<script setup>
+import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import ModalCostume from "../components/ModalCostume.vue";
+
+const BACKEND_URL = "http://localhost:3000";
+const router = useRouter();
+const email = ref("");
+const password = ref("");
+const errorMessage = ref("");
+const isLoading = ref(false);
+const isModalOpen = ref(false);
+const modalConfig = ref({
+    tipe: "info",
+    judul: "Pemberitahuan",
+    pesan: "",
+    teksKonfirmasi: "Oke Siap",
+    showCancel: false,
+});
+
+const isPerangkatLainError = computed(() => {
+    return (
+        errorMessage.value.toLowerCase().includes("perangkat lain") ||
+        errorMessage.value.toLowerCase().includes("sedang login")
+    );
+});
+
+const pemicuModal = (
+    pesan,
+    tipe = "info",
+    judul = "Pemberitahuan",
+    teksKonfirmasi = "Oke Siap",
+) => {
+    modalConfig.value = {
+        tipe,
+        judul,
+        pesan,
+        teksKonfirmasi,
+        showCancel: false,
+    };
+    isModalOpen.value = true;
+};
+
+const handleLogin = async () => {
+    if (!email.value || !password.value) {
+        errorMessage.value = "Email dan password wajib diisi!";
+        return;
+    }
+
+    errorMessage.value = "";
+    isLoading.value = true;
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                email: email.value,
+                password: password.value,
+            }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Gagal melakukan login");
+        }
+
+        localStorage.setItem("token_user", result.token);
+        localStorage.setItem("id_user", result.user.id);
+        localStorage.setItem("role_user", result.user.role);
+        localStorage.setItem("nama_user", result.user.nama);
+        localStorage.setItem("kelas_user", result.user.kelas || "");
+        localStorage.setItem("password_user", result.user.password);
+
+        router.push({ name: "home-page" });
+    } catch (error) {
+        errorMessage.value = error.message;
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const handleLogoutPaksa = async () => {
+    errorMessage.value = "";
+    isLoading.value = true;
+
+    try {
+        const response = await fetch(
+            `${BACKEND_URL}/auth/logout?method=paksa&email=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`,
+        );
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Gagal mengeluarkan sesi perangkat lain",
+            );
+        }
+
+        pemicuModal(
+            result.message ||
+                "Sesi perangkat lain berhasil diputus. Silakan coba masuk kembali.",
+            "sukses",
+            "Sesi Dibersihkan",
+        );
+    } catch (error) {
+        pemicuModal(
+            "Terjadi gangguan sistem: " + error.message,
+            "error",
+            "Gagal Memproses",
+        );
+    } finally {
+        isLoading.value = false;
+    }
+};
+</script>
+
 <template>
     <div class="login-container">
         <div class="login-box">
@@ -95,116 +214,6 @@
         />
     </div>
 </template>
-
-<script setup>
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
-import ModalCostume from "../components/ModalCostume.vue";
-
-const BACKEND_URL = "http://localhost:3000";
-const router = useRouter();
-const email = ref("");
-const password = ref("");
-const errorMessage = ref("");
-const isLoading = ref(false);
-const isModalOpen = ref(false);
-const modalConfig = ref({
-    tipe: "info",
-    judul: "Pemberitahuan",
-    pesan: "",
-    teksKonfirmasi: "Oke Siap",
-    showCancel: false,
-});
-
-const isPerangkatLainError = computed(() => {
-    return (
-        errorMessage.value.toLowerCase().includes("perangkat lain") ||
-        errorMessage.value.toLowerCase().includes("sedang login")
-    );
-});
-
-const pemicuModal = (
-    pesan,
-    tipe = "info",
-    judul = "Pemberitahuan",
-    teksKonfirmasi = "Oke Siap",
-) => {
-    modalConfig.value = {
-        tipe,
-        judul,
-        pesan,
-        teksKonfirmasi,
-        showCancel: false,
-    };
-    isModalOpen.value = true;
-};
-
-const handleLogin = async () => {
-    if (!email.value || !password.value) {
-        errorMessage.value = "Email dan password wajib diisi!";
-        return;
-    }
-
-    errorMessage.value = "";
-    isLoading.value = true;
-
-    try {
-        const response = await fetch(
-            `${BACKEND_URL}/auth/login?email=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`,
-        );
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || "Gagal melakukan login");
-        }
-
-        localStorage.setItem("id_user", result.id);
-        localStorage.setItem("role_user", result.role);
-        localStorage.setItem("nama_user", result.nama);
-        localStorage.setItem("kelas_user", result.kelas);
-        localStorage.setItem("pass_user", result.password);
-
-        router.push({ name: "home-page" });
-    } catch (error) {
-        errorMessage.value = error.message;
-    } finally {
-        isLoading.value = false;
-    }
-};
-
-const handleLogoutPaksa = async () => {
-    errorMessage.value = "";
-    isLoading.value = true;
-
-    try {
-        const response = await fetch(
-            `${BACKEND_URL}/auth/logout?method=paksa&email=${encodeURIComponent(email.value)}&password=${encodeURIComponent(password.value)}`,
-        );
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-            throw new Error(
-                result.message || "Gagal mengeluarkan sesi perangkat lain",
-            );
-        }
-
-        pemicuModal(
-            result.message ||
-                "Sesi perangkat lain berhasil diputus. Silakan coba masuk kembali.",
-            "sukses",
-            "Sesi Dibersihkan",
-        );
-    } catch (error) {
-        pemicuModal(
-            "Terjadi gangguan sistem: " + error.message,
-            "error",
-            "Gagal Memproses",
-        );
-    } finally {
-        isLoading.value = false;
-    }
-};
-</script>
 
 <style scoped>
 .login-container {
