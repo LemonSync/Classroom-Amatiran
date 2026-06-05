@@ -33,7 +33,13 @@ jobs:
     - name: Install and Build Frontend
       run: |
         cd Frontend
-        npm install --include=optional
+        # 1. Hapus cache lokal npm di runner
+        npm cache clean --force
+        # 2. Hapus modul yang mungkin rusak
+        rm -rf node_modules
+        # 3. Instal semua, termasuk optional deps secara paksa
+        npm install --prefer-online --force
+        # 4. Build
         npm run build --if-present
 
     # Run Tests dengan navigasi yang aman
